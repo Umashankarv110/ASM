@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#f99128</color>
+    <color name="colorPrimaryDark">#fd7d00</color>
+    <color name="colorAccent">#f99128</color>
+    <color name="successGreen">#32710A</color>
+    <color name="colorRed">#E61E0F</color>
+    <color name="recyclerViewBg">#d6d6d6</color>
+    <color name="colorBlack">#000000</color>
+    <color name="black">#000000</color>
+    <color name="colorWhite">#ffffff</color>
+
+    <color name="present">#4CAF50</color>
+    <color name="absent">#F44336</color>
+</resources>

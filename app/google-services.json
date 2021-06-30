@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "425992975292",
+    "firebase_url": "https://asm-firebase.firebaseio.com",
+    "project_id": "asm-firebase",
+    "storage_bucket": "asm-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425992975292:android:f86045a812f7d4b984b1b9",
+        "android_client_info": {
+          "package_name": "com.kiratcoding.asm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425992975292-ihpg0ke3hj74ji08t1968vqshc1l1ekq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI0j-Ga6cKspMkcwkoIXuAiNiLueQ1_nY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425992975292-ihpg0ke3hj74ji08t1968vqshc1l1ekq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425992975292:android:3fbdece2481e565d84b1b9",
+        "android_client_info": {
+          "package_name": "com.kiratcoding.cameragallery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425992975292-ihpg0ke3hj74ji08t1968vqshc1l1ekq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI0j-Ga6cKspMkcwkoIXuAiNiLueQ1_nY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425992975292-ihpg0ke3hj74ji08t1968vqshc1l1ekq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
