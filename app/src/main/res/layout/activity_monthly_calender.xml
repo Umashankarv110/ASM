@@ -638,41 +638,82 @@
 
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="0dp"
+        android:id="@+id/linearLayout14"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
-        android:gravity="center|left"
         android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-        <include
-            android:id="@+id/include"
-            layout="@layout/present_view" />
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/linearLayout1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Indicates Present"
-            android:textSize="16dp"
-            android:textStyle="bold" />
+            android:layout_weight="1"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+            <include
+                android:id="@+id/include"
+                layout="@layout/present_view" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Present"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/linearLayout1"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+            <include
+                android:id="@+id/include"
+                layout="@layout/absent_view" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Absent"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout14">
 
         <LinearLayout
             android:id="@+id/linearLayout10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_weight="1"
             android:gravity="center|left"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
@@ -686,7 +727,7 @@
                 android:id="@+id/textView30"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sunday | Holiday"
+                android:text="Sunday/Holiday"
                 android:textSize="16dp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -694,10 +735,9 @@
 
         <LinearLayout
             android:id="@+id/linearLayout12"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_weight="1"
             android:gravity="center|left"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
@@ -717,27 +757,5 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:id="@+id/linearLayout13"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:gravity="center|left"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/linearLayout12"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout12">
-
-            <include
-                android:id="@+id/include"
-                layout="@layout/absent_view" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Absent"
-                android:textSize="16dp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
