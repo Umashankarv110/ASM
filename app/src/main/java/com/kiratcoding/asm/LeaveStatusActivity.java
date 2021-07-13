@@ -139,7 +139,7 @@ public class LeaveStatusActivity extends AppCompatActivity  implements DatePicke
 
                 //-------------------------
                 etName.setText(employee.getName());
-                etName.setEnabled(false);
+                etName.setFocusable(false);
                 etStartDate.setFocusable(false);
                 etEndDate.setFocusable(false);
 

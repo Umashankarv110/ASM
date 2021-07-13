@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,7 +29,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
-import com.kiratcoding.asm.ModelsClass.Attendance;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.MonthlyAttendance;
 import com.kiratcoding.asm.ModelsClass.MonthName;
@@ -36,7 +37,6 @@ import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.naishadhparmar.zcustomcalendar.OnNavigationButtonClickedListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -59,7 +59,7 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
     TextView tv21,tv22,tv23,tv24,tv25,tv26,tv27,tv28,tv29,tv30,tv31;
     Spinner spinnerMonth, spinnerYear;
 
-    private int year, month, day;
+    private int year, month, day, thisMonth, thisYear;
     private Calendar calendar;
 
     String firstDate, lastDate;
@@ -119,9 +119,6 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         currentDate = date.format(calendar.getTime());
 
-        LocalDate cDate = LocalDate.parse(currentDate);
-        currentDay = cDate.getDayOfMonth();
-
         detailsList = new ArrayList<>();
         monthList = new ArrayList<>();
 
@@ -154,22 +151,40 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
                 month = item.getPosition();
             }
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        //set Current Month Name and Year
+        //Month Name and Year from Spinner
+        year = Integer.parseInt(spinnerYear.getSelectedItem().toString());
         month = Calendar.getInstance().get(Calendar.MONTH);
+
+        // Current Month Year Set on Spinner
         spinnerMonth.setSelection(month);
         spinnerYear.setSelection(1);
+        //current month and year
+        thisMonth = calendar.get(Calendar.MONTH);
+        thisYear = calendar.get(Calendar.YEAR);
+        Log.d("________________",month+"|"+thisMonth +"|"+ spinnerYear.getSelectedItem() +"|"+ thisYear);
 
-        LocalDate lastDayOfMonth = LocalDate.parse(currentDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).with(TemporalAdjusters.lastDayOfMonth());
         LocalDate firstDayOfMonth = LocalDate.parse(currentDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate lastDayOfMonth = LocalDate.parse(currentDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")).with(TemporalAdjusters.lastDayOfMonth());
+        textDateRange.setText("Date Range: "+ firstDayOfMonth+" To "+ lastDayOfMonth);
 
-        textDateRange.setText("Date Range: "+ firstDayOfMonth +" To "+ lastDayOfMonth);
-        getMonthlyAttendance(String.valueOf(firstDayOfMonth),String.valueOf(lastDayOfMonth));
+        firstDate = firstDayOfMonth+"";
+        lastDate = lastDayOfMonth+"";
+
+        getMonthlyAttendance(firstDate,currentDate);
+        getSundayAttendance(firstDate,lastDate);
+
+        LocalDate cDate = LocalDate.parse(currentDate);
+        currentDay = cDate.getDayOfMonth();
+        Log.i("currentDay",""+currentDay);
+        setCurrentDate(currentDay,"current_day");
+
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void GetCalender(View view) throws ParseException {
         tv1.setBackgroundResource(R.drawable.slider_bg);  tv2.setBackgroundResource(R.drawable.slider_bg);
         tv3.setBackgroundResource(R.drawable.slider_bg);  tv4.setBackgroundResource(R.drawable.slider_bg);
@@ -207,52 +222,112 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
         lastDate = sdf.format(c.getTime());
 
         textDateRange.setText("Date Range: "+ firstDate +" To "+ lastDate);
-        getMonthlyAttendance(firstDate,lastDate);
+
+
+        //selected Month and year
+        LocalDate cDate = LocalDate.parse(firstDate);
+        month = cDate.getMonthValue();
+        year = cDate.getYear();
+
+        //for Current Month and Year
+        LocalDate cDate1 = LocalDate.parse(currentDate);
+        thisMonth =  cDate1.getMonthValue();
+        thisYear =  cDate1.getYear();
+
+        Log.d("_____________",month+"|"+thisMonth +"|"+ spinnerYear.getSelectedItem() +"|"+ thisYear);
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        Date strDate = sdf1.parse(lastDate);
+
+        setDateVisibility(lastDate);
+        if (month == thisMonth && year == thisYear){
+             currentDay = cDate1.getDayOfMonth();
+             setCurrentDate(currentDay,"current_day");
+             getMonthlyAttendance(firstDate,currentDate);
+            Log.i("Selected Month", "Current Month "+ strDate);
+        }else if (new Date().after(strDate)) {
+             currentDay = 0;
+             setCurrentDate(currentDay,"current_day");
+             getMonthlyAttendance(firstDate,lastDate);
+             Log.i("Selected Month", "Past Month "+strDate);
+        } else if (new Date().before(strDate)){
+             currentDay = 0;
+             setCurrentDate(currentDay,"current_day");
+             Toast.makeText(this, "Future Month Selected", Toast.LENGTH_SHORT).show();
+             Log.i("Selected Month", "Future Month "+strDate);
+        }
 
     }
 
-    private void getMonthlyAttendance(String firstdate, String lastdate) {
-        pd.show();
-        if (lastdate.endsWith("28")){
-            tv29.setVisibility(View.GONE);
-            tv30.setVisibility(View.GONE);
-            tv31.setVisibility(View.GONE);
-        } if (lastdate.endsWith("29")){
-            tv30.setVisibility(View.GONE);
-            tv31.setVisibility(View.GONE);
-        } else if (lastdate.endsWith("30")){
-            tv31.setVisibility(View.GONE);
-        } else if (lastdate.endsWith("31")){
-            tv31.setVisibility(View.VISIBLE);
+    private void setCurrentDate(int day, String status) {
+        if (status.equalsIgnoreCase("current_day")) {
+            if (day == 1) { tv1.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 2) { tv2.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 3) { tv3.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 4) { tv4.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 5) { tv5.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 6) { tv6.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 7) { tv7.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 8) { tv8.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 9) { tv9.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 10) { tv10.setBackgroundResource(R.drawable.ab_current_day); }
+
+            if (day == 11) { tv11.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 12) { tv12.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 13) { tv13.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 14) { tv14.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 15) { tv15.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 16) { tv16.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 17) { tv17.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 18) { tv18.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 19) { tv19.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 20) { tv20.setBackgroundResource(R.drawable.ab_current_day); }
+
+            if (day == 21) { tv21.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 22) { tv22.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 23) { tv23.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 24) { tv24.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 25) { tv25.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 26) { tv26.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 27) { tv27.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 28) { tv28.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 29) { tv29.setBackgroundResource(R.drawable.ab_current_day); }
+            if (day == 30) { tv30.setBackgroundResource(R.drawable.ab_current_day); }
+
+            if (day == 31) { tv31.setBackgroundResource(R.drawable.ab_current_day); }
         }
+    }
+
+
+
+    private void getMonthlyAttendance(String fdate, String ldate) {
+        Log.i("firstdate", fdate);
+        Log.i("lastDate", ldate);
+        pd.show();
+        setDateVisibility(ldate);
 
         StringRequest request = new StringRequest(Request.Method.POST, "https://www.arunodyafeeds.com/sales/android/NewScript/AttendanceMonthlyDetails.php",
                 new Response.Listener<String>() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onResponse(String response) {
+                        Log.i("AttendancResponce",response);
                         detailsList.clear();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            Log.i("AttendancResponce",response);
-                            if (jsonObject.optString("status").equals("true")){
-                                JSONArray jsonArray = jsonObject.getJSONArray("MonthAttendance");
-                                for (int i=0; i<jsonArray.length();i++){
-                                    JSONObject object = jsonArray.getJSONObject(i);
-                                    status = object.getString("status");
-                                    String date = object.getString("currentDate");
+                            JSONArray jsonArray = jsonObject.getJSONArray("MonthAttendance");
+                            for (int i=0; i<jsonArray.length();i++){
+                                JSONObject object = jsonArray.getJSONObject(i);
+                                status = object.getString("status");
+                                String date = object.getString("date");
 
-                                    LocalDate cDate = LocalDate.parse(date);
-                                    day = cDate.getDayOfMonth();
+                                Log.i("Response", status+":"+date);
 
-                                    MonthlyAttendance details = new MonthlyAttendance(day, status);
-                                    detailsList.add(details);
-                                    ShowDetailsOnCalander(details);
-                                    pd.dismiss();
-                                }
-                            }else if (jsonObject.optString("status").equals("false")){
-                                pd.dismiss();
-                                Toast.makeText(MonthlyCalenderActivity.this, "No Record Found..", Toast.LENGTH_SHORT).show();
+                                LocalDate cDate = LocalDate.parse(date);
+                                day = cDate.getDayOfMonth();
+
+                                MonthlyAttendance details = new MonthlyAttendance(day, status);
+                                detailsList.add(details);
+                                ShowDetailsOnCalander(details);
                             }
                         }catch (JSONException e){
                             e.printStackTrace();
@@ -276,6 +351,328 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
             protected Map<String, String> getPostParams() throws AuthFailureError {
                 HashMap<String, String> orderMap = new HashMap<>();
                 orderMap.put("uniquenumber", uniqueNumber);
+                orderMap.put("fromDate", fdate);
+                orderMap.put("toDate", ldate);
+                return orderMap;
+            }
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> orderMap = new HashMap<>();
+                orderMap.put("uniquenumber", uniqueNumber);
+                orderMap.put("fromDate", fdate);
+                orderMap.put("toDate", ldate);
+                return orderMap;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(request);
+
+    }
+
+    private void setDateVisibility(String ldate) {
+        if (ldate.endsWith("28")){
+            tv29.setBackgroundResource(R.color.colorWhite); tv29.setText("");
+            tv30.setBackgroundResource(R.color.colorWhite); tv30.setText("");
+            tv31.setBackgroundResource(R.color.colorWhite); tv31.setText("");
+        } if (ldate.endsWith("29")){
+            tv29.setBackgroundResource(R.drawable.slider_bg); tv29.setText("29");
+            tv30.setBackgroundResource(R.color.colorWhite); tv30.setText("");
+            tv31.setBackgroundResource(R.color.colorWhite); tv31.setText("");
+        } else if (ldate.endsWith("30")){
+            tv29.setBackgroundResource(R.drawable.slider_bg); tv29.setText("29");
+            tv30.setBackgroundResource(R.drawable.slider_bg); tv30.setText("30");
+            tv31.setBackgroundResource(R.color.colorWhite); tv31.setText("");
+        }else if (ldate.endsWith("31")) {
+            tv29.setBackgroundResource(R.drawable.slider_bg); tv29.setText("29");
+            tv30.setBackgroundResource(R.drawable.slider_bg); tv30.setText("30");
+            tv31.setBackgroundResource(R.drawable.slider_bg); tv31.setText("31");
+        }
+    }
+
+    private void ShowDetailsOnCalander(MonthlyAttendance details) {
+        int day = details.getDayNumber();
+        String status = details.getAttendanceStatus();
+        String userData = "Status: " + status + "| Day: " + day +"\n";
+        Log.e("dvfvdsfvdsfvs",userData);
+        getSundayAttendance(firstDate,lastDate);
+        if (day != currentDay) {
+            if (status.equalsIgnoreCase("present")) {
+
+                if (day == 1) {
+                    tv1.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 2) {
+                    tv2.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 3) {
+                    tv3.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 4) {
+                    tv4.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 5) {
+                    tv5.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 6) {
+                    tv6.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 7) {
+                    tv7.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 8) {
+                    tv8.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 9) {
+                    tv9.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 10) {
+                    tv10.setBackgroundResource(R.drawable.ab_present);
+                }
+
+                if (day == 11) {
+                    tv11.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 12) {
+                    tv12.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 13) {
+                    tv13.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 14) {
+                    tv14.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 15) {
+                    tv15.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 16) {
+                    tv16.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 17) {
+                    tv17.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 18) {
+                    tv18.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 19) {
+                    tv19.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 20) {
+                    tv20.setBackgroundResource(R.drawable.ab_present);
+                }
+
+                if (day == 21) {
+                    tv21.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 22) {
+                    tv22.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 23) {
+                    tv23.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 24) {
+                    tv24.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 25) {
+                    tv25.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 26) {
+                    tv26.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 27) {
+                    tv27.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 28) {
+                    tv28.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 29) {
+                    tv29.setBackgroundResource(R.drawable.ab_present);
+                }
+                if (day == 30) {
+                    tv30.setBackgroundResource(R.drawable.ab_present);
+                }
+
+                if (day == 31) {
+                    tv31.setBackgroundResource(R.drawable.ab_present);
+                }
+            } else if (status.equalsIgnoreCase("absent")) {
+                if (day == 1) {
+                    tv1.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 2) {
+                    tv2.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 3) {
+                    tv3.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 4) {
+                    tv4.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 5) {
+                    tv5.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 6) {
+                    tv6.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 7) {
+                    tv7.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 8) {
+                    tv8.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 9) {
+                    tv9.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 10) {
+                    tv10.setBackgroundResource(R.drawable.ab_absent);
+                }
+
+                if (day == 11) {
+                    tv11.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 12) {
+                    tv12.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 13) {
+                    tv13.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 14) {
+                    tv14.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 15) {
+                    tv15.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 16) {
+                    tv16.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 17) {
+                    tv17.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 18) {
+                    tv18.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 19) {
+                    tv19.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 20) {
+                    tv20.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 21) {
+                    tv21.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 22) {
+                    tv22.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 23) {
+                    tv23.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 24) {
+                    tv24.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 25) {
+                    tv25.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 26) {
+                    tv26.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 27) {
+                    tv27.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 28) {
+                    tv28.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 29) {
+                    tv29.setBackgroundResource(R.drawable.ab_absent);
+                }
+                if (day == 30) {
+                    tv30.setBackgroundResource(R.drawable.ab_absent);
+                }
+
+                if (day == 31) {
+                    tv31.setBackgroundResource(R.drawable.ab_absent);
+                }
+            }
+        }
+    }
+
+    private void getSundayAttendance(String firstdate, String lastdate) {
+        StringRequest request = new StringRequest(Request.Method.POST, "https://www.arunodyafeeds.com/sales/android/NewScript/getSunday.php",
+                new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("SundayResponse",response);
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArray = jsonObject.getJSONArray("MonthAttendance");
+                            for (int i=0; i<jsonArray.length();i++){
+                                JSONObject object = jsonArray.getJSONObject(i);
+                                status = object.getString("status");
+                                String date = object.getString("date");
+
+                                LocalDate cDate = LocalDate.parse(date);
+                                day = cDate.getDayOfMonth();
+
+                                if (status.equalsIgnoreCase("sunday")) {
+                                    if (day == 1) { tv1.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 2) { tv2.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 3) { tv3.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 4) { tv4.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 5) { tv5.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 6) { tv6.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 7) { tv7.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 8) { tv8.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 9) { tv9.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 10) { tv10.setBackgroundResource(R.drawable.ab_sunday); }
+
+                                    if (day == 11) { tv11.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 12) { tv12.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 13) { tv13.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 14) { tv14.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 15) { tv15.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 16) { tv16.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 17) { tv17.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 18) { tv18.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 19) { tv19.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 20) { tv20.setBackgroundResource(R.drawable.ab_sunday); }
+
+                                    if (day == 21) { tv21.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 22) { tv22.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 23) { tv23.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 24) { tv24.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 25) { tv25.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 26) { tv26.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 27) { tv27.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 28) { tv28.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 29) { tv29.setBackgroundResource(R.drawable.ab_sunday); }
+                                    if (day == 30) { tv30.setBackgroundResource(R.drawable.ab_sunday); }
+
+                                    if (day == 31) { tv31.setBackgroundResource(R.drawable.ab_sunday); }
+                                }
+
+                                pd.dismiss();
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                            pd.dismiss();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                String message = null;
+                if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
+                    message = "No Internet Connection";
+                } else if (volleyError instanceof ServerError) {
+                    message = "The server could not be found. Please try again later";
+                }
+                pd.dismiss();
+                Toast.makeText(MonthlyCalenderActivity.this, ""+message, Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getPostParams() throws AuthFailureError {
+                HashMap<String, String> orderMap = new HashMap<>();
                 orderMap.put("fromDate", firstdate);
                 orderMap.put("toDate", lastdate);
                 return orderMap;
@@ -283,7 +680,6 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> orderMap = new HashMap<>();
-                orderMap.put("uniquenumber", uniqueNumber);
                 orderMap.put("fromDate", firstdate);
                 orderMap.put("toDate", lastdate);
                 return orderMap;
@@ -295,45 +691,14 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
 
     }
 
-    private void ShowDetailsOnCalander(MonthlyAttendance details) {
-        int day = details.getDayNumber();
-        String status = details.getAttendanceStatus();
-        String userData = "Status: " + status + "| Day: " + day +"\n";
-        Log.e("dvfvdsfvdsfvs",userData);
-        if (day == 1) { tv1.setBackgroundResource(R.drawable.present); }
-        if (day == 2) { tv2.setBackgroundResource(R.drawable.present); }
-        if (day == 3) { tv3.setBackgroundResource(R.drawable.present); }
-        if (day == 4) { tv4.setBackgroundResource(R.drawable.present); }
-        if (day == 5) { tv5.setBackgroundResource(R.drawable.present); }
-        if (day == 6) { tv6.setBackgroundResource(R.drawable.present); }
-        if (day == 7) { tv7.setBackgroundResource(R.drawable.present); }
-        if (day == 8) { tv8.setBackgroundResource(R.drawable.present); }
-        if (day == 9) { tv9.setBackgroundResource(R.drawable.present); }
-        if (day == 10) { tv10.setBackgroundResource(R.drawable.present); }
 
-        if (day == 11) { tv11.setBackgroundResource(R.drawable.present); }
-        if (day == 12) { tv12.setBackgroundResource(R.drawable.present); }
-        if (day == 13) { tv13.setBackgroundResource(R.drawable.present); }
-        if (day == 14) { tv14.setBackgroundResource(R.drawable.present); }
-        if (day == 15) { tv15.setBackgroundResource(R.drawable.present); }
-        if (day == 16) { tv16.setBackgroundResource(R.drawable.present); }
-        if (day == 17) { tv17.setBackgroundResource(R.drawable.present); }
-        if (day == 18) { tv18.setBackgroundResource(R.drawable.present); }
-        if (day == 19) { tv19.setBackgroundResource(R.drawable.present); }
-        if (day == 20) { tv20.setBackgroundResource(R.drawable.present); }
-
-        if (day == 21) { tv21.setBackgroundResource(R.drawable.present); }
-        if (day == 22) { tv22.setBackgroundResource(R.drawable.present); }
-        if (day == 23) { tv23.setBackgroundResource(R.drawable.present); }
-        if (day == 24) { tv24.setBackgroundResource(R.drawable.present); }
-        if (day == 25) { tv25.setBackgroundResource(R.drawable.present); }
-        if (day == 26) { tv26.setBackgroundResource(R.drawable.present); }
-        if (day == 27) { tv27.setBackgroundResource(R.drawable.present); }
-        if (day == 28) { tv28.setBackgroundResource(R.drawable.present); }
-        if (day == 29) { tv29.setBackgroundResource(R.drawable.present); }
-        if (day == 30) { tv30.setBackgroundResource(R.drawable.present); }
-
-        if (day == 31) { tv31.setBackgroundResource(R.drawable.present); }
-
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

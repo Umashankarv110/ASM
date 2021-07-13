@@ -90,7 +90,7 @@ public class AttendanceReportActivity extends AppCompatActivity implements DateP
         setContentView(R.layout.activity_attendance_report);
         Toolbar toolbar = findViewById(R.id.attendanceReport_Toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Attendance Detail");
+        getSupportActionBar().setTitle("Attendance Details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         HttpsTrustManager.allowAllSSL();
@@ -122,7 +122,9 @@ public class AttendanceReportActivity extends AppCompatActivity implements DateP
         gotoAttendanceTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),AttendanceOptionActivity.class));
+                Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                intent.putExtra("successMsg", "attendance");
+                startActivity(intent);
             }
         });
 

@@ -127,7 +127,7 @@ public class CheckInActivity extends AppCompatActivity implements
     String type="", b64_img="", mCurrentPhotoPath="",uniqueNumber="", userName="", currentDate="", currentTime="";
     String vehicleName="", vehicleType="";
 
-    private String attendanceStatus="", fromLocation="", toLocation="", firstDate="", lastDate="";
+    private String attendanceStatus="", fromLocation="", toLocation="", firstDate="", lastDate="", prevFrom="", prevTo="", prevNote="", prevVid="", prevDate="";
 
     private CheckInDbHelper dbCheckIn;
     private Employee employee;
@@ -139,6 +139,9 @@ public class CheckInActivity extends AppCompatActivity implements
     private boolean mBound = false;
     private MyReceiver myReceiver;
 
+
+    private String etFromLocation, etToLocation, etTask, etReading, etAmt, tvLatitude, tvLongitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +150,8 @@ public class CheckInActivity extends AppCompatActivity implements
 
         TravelTypeIntent = getIntent().getStringExtra("TravelType");
         Msg = getIntent().getStringExtra("Msg");
+
+        Log.e(TravelTypeIntent+"|"+Msg,TravelTypeIntent+"|"+Msg);
 
         employee = SharedPrefLogin.getInstance(this).getUser();
         uniqueNumber = String.valueOf(employee.getUniquenumber());
@@ -237,14 +242,14 @@ public class CheckInActivity extends AppCompatActivity implements
         bt_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String etFromLocation = et_from.getEditText().getText().toString();
-                String etToLocation = et_to.getEditText().getText().toString();
-                String etTask = et_task.getEditText().getText().toString();
-                String etReading = et_reding.getEditText().getText().toString();
-                String etAmt = et_tAmt.getEditText().getText().toString();
+                etFromLocation = et_from.getEditText().getText().toString();
+                etToLocation = et_to.getEditText().getText().toString();
+                etTask = et_task.getEditText().getText().toString();
+                etReading = et_reding.getEditText().getText().toString();
+                etAmt = et_tAmt.getEditText().getText().toString();
 
-                String tvLatitude = Latitude.getText().toString().trim();
-                String tvLongitude = Longitude.getText().toString().trim();
+                tvLatitude = Latitude.getText().toString().trim();
+                tvLongitude = Longitude.getText().toString().trim();
 
                 if (TravelTypeIntent.equalsIgnoreCase("Own vehicle")) {
                     if (Msg.equalsIgnoreCase("CheckIn")) {
@@ -276,8 +281,7 @@ public class CheckInActivity extends AppCompatActivity implements
                             et_reding.setError("Enter Reading");
                             et_reding.requestFocus();
                             return;
-                        }
-                        else if (b64_img == null) {
+                        }else if (b64_img.isEmpty()) {
                             bt_submit.setEnabled(true);
                             bt_submit.setClickable(true);
                             Toast.makeText(CheckInActivity.this, "Capture Reading Before Proceeding!", Toast.LENGTH_SHORT).show();
@@ -293,7 +297,9 @@ public class CheckInActivity extends AppCompatActivity implements
                                     Attendance attendance = new Attendance(Integer.parseInt(uniqueNumber), Integer.parseInt(vehicleId), Msg);
                                     SharedPrefCheckIn.getInstance(getApplicationContext()).userCheckIn(attendance);
                                     Toast.makeText(CheckInActivity.this, Msg, Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+                                    Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                                    intent.putExtra("successMsg", "CheckedIn");
+                                    startActivity(intent);
                                     finish();
                                 }
                             }
@@ -315,7 +321,7 @@ public class CheckInActivity extends AppCompatActivity implements
                             et_reding.setError("Enter Reading");
                             et_reding.requestFocus();
                             return;
-                        }else if (b64_img == null) {
+                        }else if (b64_img.isEmpty()) {
                             bt_submit.setEnabled(true);
                             bt_submit.setClickable(true);
                             Toast.makeText(CheckInActivity.this, "Capture Reading Before Proceeding!", Toast.LENGTH_SHORT).show();
@@ -325,6 +331,109 @@ public class CheckInActivity extends AppCompatActivity implements
                             type = "3";
                             mService.removeLocationUpdates();
                             CheckOutNow(Msg);
+                        }
+                    }
+                }
+                if (TravelTypeIntent.startsWith("Previous")) {
+                    if (TravelTypeIntent.endsWith("Vehicle")) {
+                        if (Msg.equalsIgnoreCase("CheckIn")) {
+                            if (et_vehicle.getText().toString().equalsIgnoreCase("")) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                Toast.makeText(CheckInActivity.this, "Select Vehicle", Toast.LENGTH_SHORT).show();
+                            } else if (etFromLocation.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_from.setError("Enter From Location");
+                                et_from.requestFocus();
+                                return;
+                            } else if (etToLocation.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_to.setError("Enter To Location");
+                                et_to.requestFocus();
+                                return;
+                            } else if (etTask.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_task.setError("Enter Today's Task");
+                                et_task.requestFocus();
+                                return;
+                            } else if (etReading.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_reding.setError("Enter Reading");
+                                et_reding.requestFocus();
+                                return;
+                            } else if (b64_img.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                Toast.makeText(CheckInActivity.this, "Capture Reading Before Proceeding!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                buildAlertMessageNoGps();
+                                bt_submit.setEnabled(false);
+                                bt_submit.setClickable(false);
+                                type = "1";
+                                mService.requestLocationUpdates();
+                                updatePrevAttendance();
+                            }
+
+
+                        }
+                    }
+                    if (TravelTypeIntent.endsWith("Transport")){
+                        if (Msg.equalsIgnoreCase("CheckIn")) {
+                            if (etTask.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_task.setError("Enter Today's Task");
+                                et_task.requestFocus();
+                                return;
+                            }
+                            if (etFromLocation.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_from.setError("Enter Start Stop");
+                                et_from.requestFocus();
+                                return;
+                            }
+                            if (etToLocation.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_to.setError("Enter End Stop");
+                                et_to.requestFocus();
+                                return;
+                            }
+                            else {
+                                type = "1";
+                                buildAlertMessageNoGps();
+                                bt_submit.setEnabled(false);
+                                bt_submit.setClickable(false);
+                                mService.requestLocationUpdates();//call service
+                                updatePrevAttendance();
+
+                            }
+                        }
+                    }
+                    if (TravelTypeIntent.endsWith("WFH")) {
+                        if (Msg.equalsIgnoreCase("CheckIn")) {
+                            if (etTask.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                et_task.setError("Enter Today's Task");
+                                et_task.requestFocus();
+                                return;
+                            }
+                            if (b64_img.isEmpty()) {
+                                bt_submit.setEnabled(true);
+                                bt_submit.setClickable(true);
+                                Toast.makeText(CheckInActivity.this, "Capture Image Before Proceeding!", Toast.LENGTH_LONG).show();
+                            } else {
+                                type = "1";
+                                bt_submit.setEnabled(false);
+                                bt_submit.setClickable(false);
+                                updatePrevAttendance();
+                            }
                         }
                     }
                 }
@@ -362,7 +471,9 @@ public class CheckInActivity extends AppCompatActivity implements
                                     Attendance attendance = new Attendance(Integer.parseInt(uniqueNumber), Integer.parseInt(vehicleId), Msg);
                                     SharedPrefCheckIn.getInstance(getApplicationContext()).userCheckIn(attendance);
                                     Toast.makeText(CheckInActivity.this, Msg, Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+                                    Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                                    intent.putExtra("successMsg", "CheckedIn");
+                                    startActivity(intent);
                                     finish();
                                 }
                             }
@@ -382,8 +493,7 @@ public class CheckInActivity extends AppCompatActivity implements
                             et_task.setError("Enter Today's Report");
                             et_task.requestFocus();
                             return;
-                        }
-                        if (b64_img == null) {
+                        }else if (b64_img.isEmpty()) {
                             bt_submit.setEnabled(true);
                             bt_submit.setClickable(true);
                             Toast.makeText(CheckInActivity.this, "Capture Ticket Image Before Proceeding!", Toast.LENGTH_LONG).show();
@@ -404,7 +514,7 @@ public class CheckInActivity extends AppCompatActivity implements
                             et_task.setError("Enter Today's Task");
                             et_task.requestFocus();
                             return;
-                        }if (b64_img == null) {
+                        }if (b64_img.isEmpty()) {
                             bt_submit.setEnabled(true);
                             bt_submit.setClickable(true);
                             Toast.makeText(CheckInActivity.this, "Capture Image Before Proceeding!", Toast.LENGTH_LONG).show();
@@ -417,7 +527,9 @@ public class CheckInActivity extends AppCompatActivity implements
                                     Attendance attendance = new Attendance(Integer.parseInt(uniqueNumber), Integer.parseInt(vehicleId), Msg);
                                     SharedPrefCheckIn.getInstance(getApplicationContext()).userCheckIn(attendance);
                                     Toast.makeText(CheckInActivity.this, Msg, Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+                                    Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                                    intent.putExtra("successMsg", "CheckedIn");
+                                    startActivity(intent);
                                     finish();
                                 }
                             }
@@ -431,7 +543,7 @@ public class CheckInActivity extends AppCompatActivity implements
                             et_task.requestFocus();
                             return;
                         }
-                        if (b64_img == null) {
+                        if (b64_img.isEmpty()) {
                             bt_submit.setEnabled(true);
                             bt_submit.setClickable(true);
                             Toast.makeText(CheckInActivity.this, "Capture Image Before Proceeding!", Toast.LENGTH_LONG).show();
@@ -445,9 +557,64 @@ public class CheckInActivity extends AppCompatActivity implements
                 }
             }
         });
-//
-//        registerReceiver(new CheckInNetworkStateus(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-//        registerReceiver(broadcastReceiver, new IntentFilter(CheckInNetworkStateus.DATA_SAVED_BROADCAST));
+
+    }
+
+    private void updatePrevAttendance() {
+        pd.show();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://www.arunodyafeeds.com/sales/android/NewScript/PreviousCheckout.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("CheckOutResponse",response);
+                        if (response.equalsIgnoreCase("Checked-Out")) {
+                            Toast.makeText(CheckInActivity.this, response, Toast.LENGTH_SHORT).show();
+                            if (dbCheckIn.addCheckIn(Msg, vehicleId, uniqueNumber, userName, currentDate, tvLatitude, tvLongitude, etReading, b64_img, currentTime, etTask, etFromLocation, etToLocation, 0)) {
+                                if (db.addTrackingDetail(uniqueNumber, employee.getName(), type, Latitude.getText().toString().trim(), Longitude.getText().toString().trim(), currentDate, currentTime, 0)) {
+                                    Attendance attendance = new Attendance(Integer.parseInt(uniqueNumber), Integer.parseInt(vehicleId), Msg);
+                                    SharedPrefCheckIn.getInstance(getApplicationContext()).userCheckIn(attendance);
+                                    Toast.makeText(CheckInActivity.this, Msg, Toast.LENGTH_SHORT).show();
+                                    pd.dismiss();
+                                    Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                                    intent.putExtra("successMsg", "CheckedIn");
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                pd.dismiss();
+                String message = null;
+                if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
+                    if (checkNetworkConnectionStatus()) {}
+                } else if (volleyError instanceof ServerError) {
+                    message = "The server could not be found. Please try again later";
+                    Toast.makeText(getApplicationContext(), ""+message, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<>();
+                String cloaseReading = et_reding.getEditText().getText().toString().trim();
+                map.put("uniquenumber",uniqueNumber);
+                map.put("status","CheckOut");
+                map.put("checkOutNote", "Continue On Next Day");
+                map.put("employeeName", employee.getName());
+                map.put("closeLatitude", Latitude.getText().toString().trim());
+                map.put("closeLongitude", Longitude.getText().toString().trim());
+                map.put("closeReading", cloaseReading);
+                map.put("closeImage", b64_img);
+                map.put("closeTime", currentTime);
+                map.put("prevDate", prevDate);
+                return map;
+            }
+        };
+
+        VolleySingleton.getInstance(CheckInActivity.this).addToRequestQueue(stringRequest);
     }
 
     private void WFHCheckOutNow(final String msg) {
@@ -458,7 +625,9 @@ public class CheckInActivity extends AppCompatActivity implements
                 pd.dismiss();
                 SharedPrefCheckIn.getInstance(getApplicationContext()).checkout();
                 Toast.makeText(CheckInActivity.this, ""+response, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+                Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                intent.putExtra("successMsg", "CheckedOut");
+                startActivity(intent);
                 finish();
             }
         }, new Response.ErrorListener() {
@@ -503,7 +672,9 @@ public class CheckInActivity extends AppCompatActivity implements
                 if (db.addTrackingDetail(uniqueNumber, employee.getName(), type, Latitude.getText().toString().trim(), Longitude.getText().toString().trim(), currentDate, currentTime, 0)) {
                     SharedPrefCheckIn.getInstance(getApplicationContext()).checkout();
                     Toast.makeText(CheckInActivity.this, Msg, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+                    Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                    intent.putExtra("successMsg", "CheckedOut");
+                    startActivity(intent);
                     finish();
                 }
             }
@@ -560,13 +731,73 @@ public class CheckInActivity extends AppCompatActivity implements
                 et_vehicle.setVisibility(View.GONE);
             } else if (Msg.equalsIgnoreCase("CheckOut")) {
                 GetAttendance();
-
                 bt_submit.setText("Check Out");
                 topText.setText("Check-Out Meter Reading");
                 et_reding.setHint("Enter Close Reading");
                 et_task.setHint("Today's Report");
                 et_vehicle.setVisibility(View.VISIBLE);
                 selectVehicleBtn.setVisibility(View.GONE);
+            }
+        }else if(TravelTypeIntent.startsWith("Previous")){
+            prevNote = getIntent().getStringExtra("prevNote");
+            prevFrom = getIntent().getStringExtra("prevFrom");
+            prevTo = getIntent().getStringExtra("prevTo");
+            prevVid = getIntent().getStringExtra("prevVid");
+            prevDate = getIntent().getStringExtra("prevDate");
+            vehicleId = prevVid;
+
+            if(TravelTypeIntent.endsWith("Vehicle")) {
+                travelTypeText.setText("Personal | Company Vehicle");
+                iv.setVisibility(View.VISIBLE);
+                et_tAmt.setVisibility(View.GONE);
+                selectVehicleBtn.setVisibility(View.GONE);
+                et_reding.setVisibility(View.VISIBLE);
+                if (Msg.equalsIgnoreCase("CheckIn")) {
+                    bt_submit.setText("Check In");
+                    topText.setText("Check-In Meter Reading");
+                    et_reding.setHint("Enter Current Reading");
+                    et_task.setHint("What's your plan today");
+                    et_task.getEditText().setText(prevNote);
+                    et_from.getEditText().setText(prevFrom);
+                    et_to.getEditText().setText(prevTo);
+                    et_vehicle.setVisibility(View.GONE);
+                }
+            }else if(TravelTypeIntent.endsWith("Transport")) {
+                vehicleId="0";
+                travelTypeText.setText("Public Transport");
+                if (Msg.equalsIgnoreCase("CheckIn")) {
+                    bt_submit.setText("Check In");
+                    topText.setText("Check-In Details");
+                    et_task.setHint("What's your plan today");
+                    et_task.getEditText().setText(prevNote);
+                    et_from.getEditText().setText(prevFrom);
+                    et_to.getEditText().setText(prevTo);
+                    et_task.setVisibility(View.VISIBLE);
+                    et_from.setVisibility(View.VISIBLE);
+                    et_to.setVisibility(View.VISIBLE);
+                    et_tAmt.setVisibility(View.GONE);
+                    et_reding.setVisibility(View.GONE);
+                    et_vehicle.setVisibility(View.GONE);
+                    selectVehicleBtn.setVisibility(View.GONE);
+                    iv.setVisibility(View.GONE);
+                }
+            }else if(TravelTypeIntent.endsWith("WFH")) {
+                vehicleId="123456";
+                travelTypeText.setText("Work from Home");
+                if (Msg.equalsIgnoreCase("CheckIn")) {
+                    bt_submit.setText("Check In");
+                    topText.setText("Check-In For WFH");
+                    et_task.setHint("What's your plan today");
+                    iv.setVisibility(View.VISIBLE);
+                    et_reding.setVisibility(View.GONE);
+                    et_vehicle.setVisibility(View.GONE);
+                    et_reding.setVisibility(View.GONE);
+                    et_tAmt.setVisibility(View.GONE);
+                    selectVehicleBtn.setVisibility(View.GONE);
+                    et_from.setVisibility(View.GONE);
+                    et_to.setVisibility(View.GONE);
+                    et_tAmt.setVisibility(View.GONE);
+                }
             }
         }
         else if(TravelTypeIntent.equalsIgnoreCase("Public Transport")) {
@@ -587,7 +818,6 @@ public class CheckInActivity extends AppCompatActivity implements
             }
             else if (Msg.equalsIgnoreCase("CheckOut")) {
                 GetAttendance();
-
                 bt_submit.setText("Check Out");
                 topText.setText("Check-Out Ticket Details");
                 et_task.setHint("Today's Report");
@@ -985,7 +1215,9 @@ public class CheckInActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == android.R.id.home){
-            startActivity(new Intent(getApplicationContext(), AttendanceOptionActivity.class));
+            Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+            intent.putExtra("successMsg", "attendance");
+            startActivity(intent);
             finish();
             return true;
         }
