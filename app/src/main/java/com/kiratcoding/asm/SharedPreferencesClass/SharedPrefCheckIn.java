@@ -1,20 +1,17 @@
 package com.kiratcoding.asm.SharedPreferencesClass;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.kiratcoding.asm.AttendanceOptionActivity;
-import com.kiratcoding.asm.AuthActivity;
 import com.kiratcoding.asm.ModelsClass.Attendance;
 
 public class SharedPrefCheckIn {
 
     //the constants
-    private static final String SHARED_PREF_CHECKIN = "checkinref";
-    private static final String KEY_ATTENDANCE_STATUS = "keyastatus";
-    private static final String KEY_VEHICLE_ID = "keyvehicleid";
-    private static final String KEY_UID = "keyuid";
+    private static final String SHARED_PREF_CHECKIN = "checkinref1";
+    private static final String KEY_ATTENDANCE_STATUS = "keyastatus1";
+    private static final String KEY_VEHICLE_ID = "keyvehicleid1";
+    private static final String KEY_UID = "keyuid1";
 
     private static SharedPrefCheckIn mInstance;
     private static Context mCtx;

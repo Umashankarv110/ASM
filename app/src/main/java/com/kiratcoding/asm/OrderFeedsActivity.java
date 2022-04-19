@@ -36,7 +36,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kiratcoding.asm.AdapterClass.CategoryAdapter;
 import com.kiratcoding.asm.HelperClass.DoubleKeyHashMap;
 import com.kiratcoding.asm.AdapterClass.FeedAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.FeedCategories;
 import com.kiratcoding.asm.ModelsClass.Feeds;
@@ -89,7 +88,6 @@ public class OrderFeedsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Order Feeds");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");

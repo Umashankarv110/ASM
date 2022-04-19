@@ -34,7 +34,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputLayout;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefPayrollLogin;
@@ -66,14 +65,12 @@ public class AuthActivity extends AppCompatActivity {
     String emailId="", uid="", name="", gender="";
 
     CountDownTimer countDownTimer;
-    long timeLeftInMilliSecond = 300000;
+    long timeLeftInMilliSecond = 180000;    //3Min: 180000, 5Min: 300000
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Checking Credentials \nPlease Wait.... ");
@@ -122,7 +119,6 @@ public class AuthActivity extends AppCompatActivity {
                         return;
                     }
                     else {
-                        String  tag_string_req = "string_req";
                         StringRequest sr = new StringRequest(Request.Method.POST, "https://www.arunodyafeeds.com/sales/android/Authentication.php",
                                 new Response.Listener<String>() {
                                     @Override
@@ -482,6 +478,7 @@ public class AuthActivity extends AppCompatActivity {
                                 mCounter.setText("Expired!");
                                 mVerify.setEnabled(false);
                                 mSendAgain.setVisibility(View.VISIBLE);
+                                timeLeftInMilliSecond = 180000;
                                 otpCode = 0000;
                             }
                         }.start();

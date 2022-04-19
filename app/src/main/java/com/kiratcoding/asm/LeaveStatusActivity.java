@@ -37,7 +37,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kiratcoding.asm.AdapterClass.LeavesAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Leaves;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
@@ -51,7 +50,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LeaveStatusActivity extends AppCompatActivity  implements DatePickerDialog.OnDateSetListener{
@@ -85,8 +83,6 @@ public class LeaveStatusActivity extends AppCompatActivity  implements DatePicke
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Leaves Detail");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");

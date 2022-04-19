@@ -28,7 +28,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kiratcoding.asm.AdapterClass.NotificationAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.Notification;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
@@ -71,8 +70,6 @@ public class NotificationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Notifications");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");

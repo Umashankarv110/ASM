@@ -8,7 +8,18 @@ public class Attendance {
     private int upload_status;
     String vehicleName,amount,distance;
 
+    String day,dayname, month, year;
+
     public Attendance() {
+    }
+
+    public Attendance(String status, String note , String day, String dayname, String month, String year) {
+        this.status = status;
+        this.note = note;
+        this.day = day;
+        this.dayname = dayname;
+        this.month = month;
+        this.year = year;
     }
 
     public Attendance(int id, String vehicleName, float startReading, float closeReading, String fromLocation, String toLocation, String status, String note, String startTime, String closeTime, String distance, String amount) {
@@ -50,6 +61,38 @@ public class Attendance {
         this.upload_status = upload_status;
 
 
+    }
+
+    public String getDay() {
+        return day;
+    }
+
+    public void setDay(String day) {
+        this.day = day;
+    }
+
+    public String getDayname() {
+        return dayname;
+    }
+
+    public void setDayname(String dayname) {
+        this.dayname = dayname;
+    }
+
+    public String getMonth() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 
     public String getVehicleName() {

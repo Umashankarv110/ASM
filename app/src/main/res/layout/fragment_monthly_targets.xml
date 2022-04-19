@@ -65,13 +65,6 @@
             android:layout_marginTop="20dp"
             android:background="?android:attr/listDivider" />
 
-        <com.anychart.AnyChartView
-            android:id="@+id/piachart"
-            android:layout_width="match_parent"
-            android:visibility="gone"
-            android:layout_height="400dp"
-            android:layout_marginTop="20dp"/>
-
         <View
             android:id="@+id/divider2"
             android:layout_width="match_parent"

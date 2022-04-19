@@ -10,11 +10,11 @@ import com.kiratcoding.asm.ModelsClass.Employee;
 public class SharedPrefLogin {
 
     //the constants
-    private static final String SHARED_PREF_NAME = "logpref1";
-    private static final String KEY_USERNAME = "keyusername";
-    private static final String KEY_EMAIL = "keyemail";
-    private static final String KEY_GENDER = "keygender";
-    private static final String KEY_ID = "keyid";
+    private static final String SHARED_PREF_NAME = "logpref12";
+    private static final String KEY_USERNAME = "keyusername12";
+    private static final String KEY_EMAIL = "keyemail12";
+    private static final String KEY_GENDER = "keygender12";
+    private static final String KEY_ID = "keyid12";
 
     private static SharedPrefLogin mInstance;
     private static Context mCtx;

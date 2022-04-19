@@ -12,4 +12,8 @@
 
     <color name="present">#4CAF50</color>
     <color name="absent">#F44336</color>
+
+    <color name="orange_dark">#E64A19</color>
+    <color name="blue_dark">#00537F</color>
+    <color name="yellow">#F5A623</color>
 </resources>

@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +23,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,13 +39,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.blogspot.atifsoftwares.animatoolib.Animatoo;
 import com.kiratcoding.asm.AdapterClass.AttendanceAdapter;
-import com.kiratcoding.asm.AdapterClass.PartiesAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Attendance;
 import com.kiratcoding.asm.ModelsClass.Employee;
-import com.kiratcoding.asm.ModelsClass.Parties;
-import com.kiratcoding.asm.ModelsClass.Vehicles;
-import com.kiratcoding.asm.R;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 
 import org.json.JSONArray;
@@ -58,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class AttendanceReportActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
@@ -83,7 +75,6 @@ public class AttendanceReportActivity extends AppCompatActivity implements DateP
     String status ="",note ="", startTime ="", closeTime ="", timestamp ="", vehicleType ="";
     String fromLocation ="",toLocation ="",amount ="",distance ="";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +83,6 @@ public class AttendanceReportActivity extends AppCompatActivity implements DateP
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Attendance Details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");
@@ -122,7 +111,7 @@ public class AttendanceReportActivity extends AppCompatActivity implements DateP
         gotoAttendanceTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), AttendanceOptionActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AttendanceOptionsActivity.class);
                 intent.putExtra("successMsg", "attendance");
                 startActivity(intent);
             }

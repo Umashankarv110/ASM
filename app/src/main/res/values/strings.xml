@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Arunodya SM</string>
-    <string name="app_version">v1.56</string>
+    <string name="app_version">v1.6</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -45,6 +45,12 @@
     <string-array name="Spinner_Year">
         <item>2020</item>
         <item>2021</item>
+        <item>2022</item>
+    </string-array>
+
+    <string-array name="Spinner_Filter">
+        <item>Calender View</item>
+        <item>List View</item>
     </string-array>
 
     <string-array name="Spinner_Party">

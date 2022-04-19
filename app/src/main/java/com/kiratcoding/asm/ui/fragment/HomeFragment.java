@@ -12,9 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.kiratcoding.asm.AttendanceOptionActivity;
+import com.kiratcoding.asm.AttendanceCalendarActivity;
 import com.kiratcoding.asm.AttendanceReportActivity;
 import com.kiratcoding.asm.LeaveStatusActivity;
+import com.kiratcoding.asm.AttendanceOptionsActivity;
 import com.kiratcoding.asm.MonthlyCalenderActivity;
 import com.kiratcoding.asm.SalesActivity;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
@@ -48,7 +49,7 @@ public class HomeFragment extends Fragment {
         attendanceLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AttendanceOptionActivity.class);
+                Intent intent = new Intent(getActivity(), AttendanceOptionsActivity.class);
                 intent.putExtra("successMsg", "attendance");
                 startActivity(intent);
             }
@@ -57,6 +58,7 @@ public class HomeFragment extends Fragment {
         viewMonthAttendanceLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                Intent intent = new Intent(getActivity(), AttendanceCalendarActivity.class);
                 Intent intent = new Intent(getActivity(), MonthlyCalenderActivity.class);
                 startActivity(intent);
             }

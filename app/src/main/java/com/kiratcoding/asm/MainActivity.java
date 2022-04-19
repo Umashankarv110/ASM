@@ -43,14 +43,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Attendance;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.OfflineSync.DbHelperClass.VehicleDbHelper;
 import com.kiratcoding.asm.OfflineSync.NetworkCheckerClass.TrackingNetworkStatus;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -102,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);    //For Location
 
-        HttpsTrustManager.allowAllSSL();
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
@@ -204,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.i("TAGGGGGGGGGGG", "onResponse: "+volleyError.getMessage());
                 progressDialog.dismiss();
                 String message = null;
                 if (volleyError instanceof NetworkError || volleyError instanceof TimeoutError) {
@@ -237,9 +235,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     private boolean checkAndRequestPermissions() {
+        int permissionCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         int permissionStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         List<String> listPermissionsNeeded = new ArrayList<>();
+        if (permissionCamera != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
         if (permissionStorage != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
@@ -255,12 +257,14 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d("TAG", "Permission callback called-------");
         switch (requestCode) {
             case REQUEST_ID_MULTIPLE_PERMISSIONS: {
 
                 Map<String, Integer> perms = new HashMap<>();
                 // Initialize the map with both permissions
+                perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
                 // Fill with actual results from user
@@ -268,7 +272,8 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < permissions.length; i++)
                         perms.put(permissions[i], grantResults[i]);
                     // Check for both permissions
-                    if (perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    if (perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                            && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         Log.d("TAG", "sms & location services permission granted");
                         // process the normal flow
@@ -278,7 +283,8 @@ public class MainActivity extends AppCompatActivity {
                         //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
 //                        // shouldShowRequestPermissionRationale will return true
                         //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
+                                ||ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                 || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                             Snackbar.make(
                                     findViewById(R.id.layout_main),
@@ -388,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.i("TAGGGGGGGGGGG", "onResponse: "+volleyError.getMessage());
                 String message = null;
                 if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
                     message = "No Internet Connection";
@@ -418,6 +425,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.i("TAGGGGGGGGGGG", "onResponse: "+volleyError.getMessage());
                 String message = null;
                 if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
                     message = "No Internet Connection";
@@ -457,6 +465,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.i("TAGGGGGGGGGGG", "onResponse: "+volleyError.getMessage());
                 String message = null;
                 if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
                     message = "No Internet Connection";
@@ -541,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
         if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<android.location.Location>() {
                 @Override
-                public void onComplete(@NonNull Task<android.location.Location> task) {
+                public void onComplete(Task<android.location.Location> task) {
                     android.location.Location location = task.getResult();
                     if (location != null){
                         try {

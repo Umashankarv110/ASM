@@ -3,8 +3,6 @@ package com.kiratcoding.asm;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.view.MenuItemCompat;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -32,9 +30,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
-import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefPayrollLogin;
 
 import org.json.JSONArray;
@@ -61,7 +57,6 @@ public class PayrollMainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Payroll Home");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        HttpsTrustManager.allowAllSSL();
 
         employee = SharedPrefPayrollLogin.getInstance(this).getUser();
         uniqueNumber = String.valueOf(employee.getUniquenumber());

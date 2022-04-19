@@ -28,7 +28,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kiratcoding.asm.AdapterClass.PartiesAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.Order;
 import com.kiratcoding.asm.ModelsClass.Parties;
@@ -67,8 +66,6 @@ public class AllPartiesActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Select Party");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");

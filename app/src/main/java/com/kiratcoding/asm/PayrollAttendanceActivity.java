@@ -50,14 +50,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
-import com.kiratcoding.asm.OfflineSync.NetworkCheckerClass.VolleySingleton;
-import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefCheckIn;
-import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefPayrollLogin;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -99,7 +94,6 @@ public class PayrollAttendanceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_payroll_attendance);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);    //For Location
 
-        HttpsTrustManager.allowAllSSL();
 
         attendanceStatus = getIntent().getStringExtra("status");
 

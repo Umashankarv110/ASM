@@ -10,7 +10,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.kiratcoding.asm.AdapterClass.TabAdapter;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ui.fragment.DailyTargetsFragment;
 import com.kiratcoding.asm.ui.fragment.MonthlyTargetsFragment;
 
@@ -29,7 +28,6 @@ public class DailyTargetsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Daily Targets");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        HttpsTrustManager.allowAllSSL();
 
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);

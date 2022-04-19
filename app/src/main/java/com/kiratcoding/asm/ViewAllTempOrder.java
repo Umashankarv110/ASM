@@ -48,7 +48,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.kiratcoding.asm.AdapterClass.TempOrderAdapter;
 import com.kiratcoding.asm.HelperClass.DoubleKeyHashMap;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.TempOrder;
 import com.kiratcoding.asm.SharedPreferencesClass.SharedPrefLogin;
@@ -109,7 +108,6 @@ public class ViewAllTempOrder extends AppCompatActivity {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        HttpsTrustManager.allowAllSSL();
 
         pd = new ProgressDialog(this);
         pd.setMessage("Please Wait.. ");

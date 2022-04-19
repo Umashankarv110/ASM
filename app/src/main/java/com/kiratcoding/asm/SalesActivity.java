@@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
-
 public class SalesActivity extends AppCompatActivity {
     private Button Order_management_btn,Target_btn;
 
@@ -26,7 +24,6 @@ public class SalesActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Sales");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        HttpsTrustManager.allowAllSSL();
 
         Order_management_btn = findViewById(R.id.order_manage_btn);
         Order_management_btn.setOnClickListener(new View.OnClickListener() {

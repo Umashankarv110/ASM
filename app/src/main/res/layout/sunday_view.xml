@@ -19,6 +19,7 @@
             android:id="@+id/textView3"
             android:textColor="@color/colorWhite"
             android:gravity="center"/>
+
     </androidx.cardview.widget.CardView>
 
 </RelativeLayout>

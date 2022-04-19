@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 import com.kiratcoding.asm.ModelsClass.Order;
 
 public class SharedPrefOrderStatus {
-    private static final String SHARED_PREF_NAME = "orderpref";
-    private static final String KEY_PARTYNAME = "keypartyname";
-    private static final String KEY_ORDERSTATUS = "keystatus";
-    private static final String KEY_DATE = "keydate";
-    private static final String KEY_ID = "keyid";
+    private static final String SHARED_PREF_NAME = "orderpref1";
+    private static final String KEY_PARTYNAME = "keypartyname1";
+    private static final String KEY_ORDERSTATUS = "keystatus1";
+    private static final String KEY_DATE = "keydate1";
+    private static final String KEY_ID = "keyid1";
 
     private static SharedPrefOrderStatus mInstance;
     private static Context mCtx;

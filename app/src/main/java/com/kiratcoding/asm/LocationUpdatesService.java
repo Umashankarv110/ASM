@@ -38,7 +38,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.OfflineTracking;
 import com.kiratcoding.asm.OfflineSync.DbHelperClass.TrackingDbHelper;
@@ -145,7 +144,6 @@ public class LocationUpdatesService extends Service {
         employee = SharedPrefLogin.getInstance(this).getUser();
         uniqueNumber = String.valueOf(employee.getUniquenumber());
 
-        HttpsTrustManager.allowAllSSL();
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");

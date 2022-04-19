@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +30,8 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.kiratcoding.asm.HelperClass.HttpsTrustManager;
+import com.kiratcoding.asm.AdapterClass.CalendarAdapter;
+import com.kiratcoding.asm.ModelsClass.Attendance;
 import com.kiratcoding.asm.ModelsClass.Employee;
 import com.kiratcoding.asm.ModelsClass.MonthlyAttendance;
 import com.kiratcoding.asm.ModelsClass.MonthName;
@@ -57,7 +60,8 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
     TextView tv1,tv2,tv3,tv4,tv5,tv6,tv7,tv8,tv9,tv10;
     TextView tv11,tv12,tv13,tv14,tv15,tv16,tv17,tv18,tv19,tv20;
     TextView tv21,tv22,tv23,tv24,tv25,tv26,tv27,tv28,tv29,tv30,tv31;
-    Spinner spinnerMonth, spinnerYear;
+
+    Spinner spinnerMonth, spinnerYear, spinner_filter;
 
     private int year, month, day, thisMonth, thisYear;
     private Calendar calendar;
@@ -73,6 +77,14 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
     private Employee employee;
     private String uniqueNumber;
 
+    //
+    LinearLayout calenderViewLayout, listViewLayout;
+    ListView attendanceListView;
+    public static ArrayList<Attendance> attendanceArrayList = new ArrayList<>();
+    CalendarAdapter attendanceAdapter;
+    Attendance attendance;
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,14 +95,37 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
         getSupportActionBar().setTitle("Monthly Attendance");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        HttpsTrustManager.allowAllSSL();
 
         employee = SharedPrefLogin.getInstance(this).getUser();
         uniqueNumber = String.valueOf(employee.getUniquenumber());
 
+        spinner_filter = findViewById(R.id.spinFilter);
+        attendanceListView  = findViewById(R.id.calender_ListView);
+        calenderViewLayout  = findViewById(R.id.calenderView);
+        listViewLayout  = findViewById(R.id.listLayout);
         spinnerMonth = findViewById(R.id.spinMonth);
         spinnerYear = findViewById(R.id.spinYear);
         textDateRange = findViewById(R.id.textDateRange);
+
+        spinner_filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?>arg0, View view, int arg2, long arg3) {
+                String selected_val=spinner_filter.getSelectedItem().toString();
+
+                if (selected_val.equalsIgnoreCase("Calender View")){
+                    calenderViewLayout.setVisibility(View.VISIBLE);
+                    listViewLayout.setVisibility(View.GONE);
+                }else if (selected_val.equalsIgnoreCase("List View")){
+                    calenderViewLayout.setVisibility(View.GONE);
+                    listViewLayout.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
         tv1 = findViewById(R.id.tv_1); tv2 = findViewById(R.id.tv_2);
         tv3 = findViewById(R.id.tv_3); tv4 = findViewById(R.id.tv_4);
         tv5 = findViewById(R.id.tv_5); tv6 = findViewById(R.id.tv_6);
@@ -160,7 +195,7 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
 
         // Current Month Year Set on Spinner
         spinnerMonth.setSelection(month);
-        spinnerYear.setSelection(1);
+        spinnerYear.setSelection(2);
         //current month and year
         thisMonth = calendar.get(Calendar.MONTH);
         thisYear = calendar.get(Calendar.YEAR);
@@ -175,6 +210,10 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
 
         getMonthlyAttendance(firstDate,currentDate);
         getSundayAttendance(firstDate,lastDate);
+        //---
+        getMonthlyAttendanceList(firstDate,lastDate);
+        attendanceAdapter = new CalendarAdapter(this, attendanceArrayList);
+        attendanceListView.setAdapter(attendanceAdapter);
 
         LocalDate cDate = LocalDate.parse(currentDate);
         currentDay = cDate.getDayOfMonth();
@@ -223,7 +262,6 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
 
         textDateRange.setText("Date Range: "+ firstDate +" To "+ lastDate);
 
-
         //selected Month and year
         LocalDate cDate = LocalDate.parse(firstDate);
         month = cDate.getMonthValue();
@@ -240,20 +278,25 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
 
         setDateVisibility(lastDate);
         if (month == thisMonth && year == thisYear){
-             currentDay = cDate1.getDayOfMonth();
-             setCurrentDate(currentDay,"current_day");
-             getMonthlyAttendance(firstDate,currentDate);
+            currentDay = cDate1.getDayOfMonth();
+            setCurrentDate(currentDay,"current_day");
+            getMonthlyAttendance(firstDate,currentDate);
+            getMonthlyAttendanceList(firstDate,lastDate);
             Log.i("Selected Month", "Current Month "+ strDate);
         }else if (new Date().after(strDate)) {
-             currentDay = 0;
-             setCurrentDate(currentDay,"current_day");
-             getMonthlyAttendance(firstDate,lastDate);
-             Log.i("Selected Month", "Past Month "+strDate);
+            currentDay = 0;
+            setCurrentDate(currentDay,"current_day");
+            getMonthlyAttendance(firstDate,lastDate);
+            getMonthlyAttendanceList(firstDate,lastDate);
+            Log.i("Selected Month", "Past Month "+strDate);
         } else if (new Date().before(strDate)){
-             currentDay = 0;
-             setCurrentDate(currentDay,"current_day");
-             Toast.makeText(this, "Future Month Selected", Toast.LENGTH_SHORT).show();
-             Log.i("Selected Month", "Future Month "+strDate);
+            currentDay = 0;
+            setCurrentDate(currentDay,"current_day");
+            attendanceArrayList.clear();
+            attendanceAdapter.notifyDataSetChanged();
+            Toast.makeText(this, "Future Month Selected", Toast.LENGTH_SHORT).show();
+            Log.i("Selected Month", "Future Month "+strDate);
+
         }
 
     }
@@ -361,6 +404,83 @@ public class MonthlyCalenderActivity extends AppCompatActivity{
                 orderMap.put("uniquenumber", uniqueNumber);
                 orderMap.put("fromDate", fdate);
                 orderMap.put("toDate", ldate);
+                return orderMap;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(request);
+
+    }
+    private void getMonthlyAttendanceList(String firstdate, String lastdate) {
+        pd.show();
+        attendanceArrayList.clear();
+        StringRequest request = new StringRequest(Request.Method.POST, "https://www.arunodyafeeds.com/sales/android/AttendanceMonthlyDetails.php",
+                new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            Log.i("AttendancResponce",response);
+                            if (jsonObject.optString("status").equals("true")){
+                                JSONArray jsonArray = jsonObject.getJSONArray("MonthAttendance");
+                                for (int i=0; i<jsonArray.length();i++){
+                                    JSONObject object = jsonArray.getJSONObject(i);
+                                    int id = object.getInt("id");
+                                    String status = object.getString("status");
+                                    String task = object.getString("note");
+                                    String date = object.getString("currentDate");
+                                    LocalDate cDate = LocalDate.parse(date);
+                                    int day = cDate.getDayOfMonth();
+                                    int month = cDate.getDayOfMonth();
+                                    int year = cDate.getDayOfMonth();
+//                                    int weekDay = cDate.getDayOfWeek();
+
+                                    Log.i("day|month|year|week",cDate.getDayOfMonth()+"|"+cDate.getMonth()+"|"+cDate.getYear()+"|"+cDate.getDayOfWeek());
+
+                                    if (status.equalsIgnoreCase("CheckOut")) {
+                                        attendance = new Attendance("Present",task,""+day,String.valueOf(cDate.getDayOfWeek()).substring(0,3),String.valueOf(cDate.getMonth()).substring(0,3),""+cDate.getYear());
+                                        attendanceArrayList.add(attendance);
+                                        attendanceAdapter.notifyDataSetChanged();
+                                        pd.dismiss();
+                                    }
+
+                                    pd.dismiss();
+                                }
+                            }else if (jsonObject.optString("status").equals("false")){
+                                pd.dismiss();
+                                Log.i("status","No Record Found..");
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                            pd.dismiss();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                String message = null;
+                if (volleyError instanceof NetworkError || volleyError instanceof AuthFailureError || volleyError instanceof NoConnectionError || volleyError instanceof TimeoutError) {
+                    message = "No Internet Connection";
+                } else if (volleyError instanceof ServerError) {
+                    message = "The server could not be found. Please try again later";
+                }
+                pd.dismiss();
+                Toast.makeText(MonthlyCalenderActivity.this, ""+message, Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Log.i("uniquenumber", uniqueNumber);
+                Log.i("firstdate",""+firstdate);
+                Log.i("lastdate",""+lastdate);
+
+                HashMap<String, String> orderMap = new HashMap<>();
+                orderMap.put("uniquenumber", uniqueNumber);
+                orderMap.put("fromDate", firstdate);
+                orderMap.put("toDate", lastdate);
                 return orderMap;
             }
         };
